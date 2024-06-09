@@ -175,18 +175,13 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         mark_to_drop(standard_metadata);
     }
 
-    action ipv4_forward(bit<48> dstAddr, bit<9> port) {
-        standard_metadata.egress_spec = port;
-        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
-        hdr.ethernet.dstAddr = dstAddr;
-        hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+    //******************* Consensus Actions ************************//
+    action consent(){
+        hdr.consensus.allow = hdr.consensus.allow + 1;
     }
 
-    action ipv6_forward(bit<128> dstAddr, bit<9> port){
-        standard_metadata.egress_spec = port;
-        hdr.ethernet.srcAddr = hdr.ethernet.dstAddr;
-        hdr.ethernet.dstAddr = dstAddr;
-        hdr.ipv6.hoplim = hdr.ipv6.hoplim - 1;
+    action unconsent(){
+        hdr.consensus.unallow = hdr.consensus.unallow + 1;
     }
 
     action consensus_ingress(){
@@ -201,40 +196,37 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
     }
 
-    action consensus_egress(macAddr_t dstAddr, egressSpec_t port){
-        // Dropping packet in case it didn't pass the consensus!
-        if(hdr.consensus.allow <= hdr.consensus.unallow) {
-            mark_to_drop(standard_metadata);
-            return ;
+    //******************** IP based forwarding ***************************//
+    action ipv4_forward(bit<9> port, bit<1> lastSwitch) {
+        if(lastSwitch){
+            // Dropping packet in case it didn't pass the consensus!
+            if(hdr.consensus.allow <= hdr.consensus.unallow) {
+                mark_to_drop(standard_metadata);
+                return ;
+            }
+            
+            hdr.ipv4.protocol = hdr.consensus.protocol;
+            hdr.consensus.setInvalid();
         }
 
+        hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
         standard_metadata.egress_spec = port;
-        hdr.ethernet.dstAddr = dstAddr;
-        if(hdr.ipv4.isValid()) hdr.ipv4.protocol = hdr.consensus.protocol;
-        else if(hdr.ipv6.isValid()) hdr.ipv6.nextHeader = hdr.consensus.protocol;
-        hdr.consensus.setInvalid();
     }
 
-    action consensus_forward(egressSpect_t port){
+    action ipv6_forward(bit<9> port, bit<1> lastSwitch){
+        if(lastSwitch){
+            // Dropping packet in case it didn't pass the consensus!
+            if(hdr.consensus.allow <= hdr.consensus.unallow) {
+                mark_to_drop(standard_metadata);
+                return ;
+            }
+
+            hdr.ipv6.nextHeader = hdr.consensus.protocol;
+            hdr.consensus.setInvalid();
+        }
+
+        hdr.ipv6.hoplim = hdr.ipv6.hoplim - 1;
         standard_metadata.egress_spec = port;
-    }
-
-    action consent(){
-        if(!hdr.consensus.isValid()){
-            // ??. Should have added the consensus first, should always be valid
-            return ;
-        }
-        
-        hdr.consensus.allow = hdr.consensus.allow + 1;
-    }
-
-    action unconsent(){
-        if(!hdr.consensus.isValid()){
-            // ??. Should have added the consensus first, should always be valid
-            return ;
-        }
-
-        hdr.consensus.unallow = hdr.consensus.unallow + 1;
     }
 
     // Tables definitions
@@ -246,10 +238,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         actions = {
-            // add consensus header
-            consensus_ingress;
-
-            // consensus header actions
             consent;
             unconsent;
         }
@@ -260,15 +248,15 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     table ipv4_lpm {
         key = {
+            hdr.ipv4.srcAddr: lpm;
             hdr.ipv4.dstAddr: lpm;
         }
 
         actions = {
+            // forwarding
             ipv4_forward;
-            drop;
-            NoAction;
 
-            // consensus header actions
+            // consensus
             consent;
             unconsent;
         }
@@ -279,36 +267,19 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     table ipv6_lpm {
         key = {
+            hdr.ipv6.srcAddr: lpm;
             hdr.ipv6.dstAddr: lpm;
         }
 
         actions = {
+            // forwarding
             ipv6_forward;
-            drop;
-            NoAction;
-            
-            // consensus header actions
+
+            // consensus
             consent;
             unconsent;
         }
 
-        size = 1024;
-        default_action = drop();
-    }
-
-    table consensus_exact {
-        key = {
-            hdr.consensus.allow : exact;
-            hdr.consensus.unallow : exact;
-            hdr.consensus.protocol : exact;
-        }
-
-        actions = {
-            consensus_egress;
-            consensus_forward;
-            drop;
-        }
-        
         size = 1024;
         default_action = drop();
     }
@@ -317,8 +288,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         key = {
             hdr.udp.srcPort : exact;
             hdr.udp.dstPort : exact;
-            hdr.udp.len : exact;
-            hdr.udp.checksum : exact;
         }
 
         actions = {
@@ -327,15 +296,13 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = drop();
+        default_action = unconsent();
     }
 
     table tcp_exact {
         key = {
             hdr.tcp.srcPort : exact;
             hdr.tcp.dstPort : exact;
-            hdr.tcp.sequenceNum : exact;
-            hdr.checksum : exact;
         }
 
         actions = {
@@ -344,19 +311,20 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = drop();
+        default_action = unconsent();
     }
 
     apply {
+        // Add the consensus header if it doesn't exists
+        if(!hdr.consensus.isValid()) consensus_ingress();
+
         if(hdr.ethernet.isValid()) ethernet_table.apply();
-
-        if(hdr.ipv4.isValid()) ipv4_lpm.apply();
-        else if(hdr.ipv6.isValid()) ipv6_lpm.apply();
-
-        if(hdr.consensus.isValid()) consensus_exact.apply();
 
         if(hdr.tcp.isValid()) tcp_exact.apply();
         else if(hdr.udp.isValid()) udp_exact.apply();
+
+        if(hdr.ipv4.isValid()) ipv4_lpm.apply();
+        else if(hdr.ipv6.isValid()) ipv6_lpm.apply();
     }
 }
 

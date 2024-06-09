@@ -1,1 +1,35 @@
-table_add MyIngress.ipv4_lpm ipv4_forward 10.0.0.1/32 => 00:01:02:03:04:11 1
+table_add MyIngress.udp_exact unconsent 21 65535 =>
+table_add MyIngress.udp_exact consent 22 65535 =>
+table_add MyIngress.udp_exact unconsent 25 65535 =>
+table_add MyIngress.udp_exact consent 80 65535 =>
+table_add MyIngress.udp_exact consent 445 65535 =>
+
+table_add MyIngress.udp_exact unconsent 65535 21 =>
+table_add MyIngress.udp_exact consent 65535 22 =>
+table_add MyIngress.udp_exact consent 65535 25 =>
+table_add MyIngress.udp_exact unconsent 65535 69 =>
+table_add MyIngress.udp_exact unconsent 65535 79 =>
+table_add MyIngress.udp_exact consent 65535 445 =>
+
+table_add MyIngress.tcp_exact unconsent 21 65535 =>
+table_add MyIngress.tcp_exact unconsent 22 65535 =>
+table_add MyIngress.tcp_exact unconsent 25 65535 =>
+table_add MyIngress.tcp_exact consent 80 65535 =>
+table_add MyIngress.tcp_exact consent 445 65535 =>
+
+table_add MyIngress.tcp_exact unconsent 65535 21 =>
+table_add MyIngress.tcp_exact consent 65535 22 =>
+table_add MyIngress.tcp_exact unconsent 65535 25 =>
+table_add MyIngress.tcp_exact unconsent 65535 69 =>
+table_add MyIngress.tcp_exact unconsent 65535 79 =>
+table_add MyIngress.tcp_exact consent 65535 445 =>
+
+table_add MyIngress.ipv4_lpm ipv4_forward 0.0.0.0/0 10.0.0.1/24 => 1 0
+table_add MyIngress.ipv4_lpm ipv4_forward 0.0.0.0/0 10.0.0.2/24 => 1 0
+table_add MyIngress.ipv4_lpm ipv4_forward 0.0.0.0/0 10.0.0.3/24 => 0 1
+table_add MyIngress.ipv4_lpm ipv4_forward 0.0.0.0/0 10.0.0.4/24 => 3 0
+
+table_add MyIngress.ipv6_lpm ipv6_forward ::/0 2001:db8:1234::1 => 1 0
+table_add MyIngress.ipv6_lpm ipv6_forward ::/0 2001:db8:1234::2 => 1 0
+table_add MyIngress.ipv6_lpm ipv6_forward ::/0 2001:db8:1234::3 => 0 1
+table_add MyIngress.ipv6_lpm ipv6_forward ::/0 2001:db8:1234::4 => 3 0
