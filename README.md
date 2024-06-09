@@ -64,3 +64,10 @@ default for all the consensus tables.
 Here follows an high level explanation of every tables and actions defined for each switch, defined in each switch's comamnds.txt:
 ## S1 rules
 
+
+# TODO:
+- [x] Change to NoAction the default consensus actions
+- [ ] Change permanent links to the updated p4 files to sync the new changes!
+- [ ] Finish testing the created env
+- [ ] Write switches high level description
+
