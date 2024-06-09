@@ -1,2 +1,30 @@
-table_add MyIngress.ipv4_lpm ipv4_forward 10.0.0.1/32 => 00:01:02:03:04:11 1
-table_add MyIngress.ipv4_lpm ipv4_forward 10.0.0.1/32 => 00:01:02:03:04:11 1
+table_add MyIngress.ipv4_consensus consent 10.0.0.1/32 10.0.0.3/32 =>
+table_add MyIngress.ipv4_consensus consent 10.0.0.2/32 10.0.0.3/32 =>
+table_add MyIngress.ipv4_consensus consent 10.0.0.3/32 10.0.0.2/32 =>
+
+
+table_add MyIngress.ipv4_consensus unconsent 10.0.0.3/32 10.0.0.1/32 =>
+table_add MyIngress.ipv4_consensus unconsent 10.0.0.1/32 10.0.0.4/32 =>
+table_add MyIngress.ipv4_consensus unconsent 10.0.0.4/32 10.0.0.1/32 =>
+table_add MyIngress.ipv4_consensus unconsent 10.0.0.2/32 10.0.0.4/32 =>
+table_add MyIngress.ipv4_consensus unconsent 10.0.0.4/32 10.0.0.2/32 =>
+
+
+table_add MyIngress.ipv6_consensus consent 2001:db8:1234::1/48 2001:db8:1234::3/48 =>
+table_add MyIngress.ipv6_consensus consent 2001:db8:1234::3/48 2001:db8:1234::1/48 =>
+table_add MyIngress.ipv6_consensus consent 2001:db8:1234::2/48 2001:db8:1234::4/48 =>
+table_add MyIngress.ipv6_consensus consent 2001:db8:1234::4/48 2001:db8:1234::2/48 =>
+
+table_add MyIngress.ipv6_consensus unconsent 2001:db8:1234::2/48 2001:db8:1234::3/48 =>
+table_add MyIngress.ipv6_consensus unconsent 2001:db8:1234::3/48 2001:db8:1234::2/48 =>
+
+
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.1/24 => 0 0
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.2/24 => 0 0
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.3/24 => 2 0
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.4/24 => 2 0
+
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::1 => 0 0
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::2 => 0 0
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::3 => 2 0
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::4 => 2 0

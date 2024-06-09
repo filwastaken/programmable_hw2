@@ -57,6 +57,7 @@ header consensus_t {
     bit<8> protocol;
 }
 
+// Layer 4 headers
 header tcp_t {
     bit<16> srcPort;
     bit<16> dstPort;
@@ -230,7 +231,9 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     }
 
     // Tables definitions
-    table ethernet_table {
+
+    // Layer 2 consensus table
+    table ethernet_consensus {
         key = {
             hdr.ethernet.srcAddr : lpm;
             hdr.ethernet.dstAddr : lpm;
@@ -243,48 +246,69 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = drop();
+        default_action = unconsent();
     }
 
-    table ipv4_lpm {
+    // Layer 3 consensus tables
+    table ipv4_consensus {
         key = {
             hdr.ipv4.srcAddr: lpm;
             hdr.ipv4.dstAddr: lpm;
         }
 
         actions = {
-            // forwarding
-            ipv4_forward;
-
-            // consensus
             consent;
             unconsent;
         }
 
         size = 1024;
-        default_action = drop();
+        default_action = unconsent();
     }
 
-    table ipv6_lpm {
+    table ipv6_consensus {
         key = {
             hdr.ipv6.srcAddr: lpm;
             hdr.ipv6.dstAddr: lpm;
         }
 
         actions = {
-            // forwarding
-            ipv6_forward;
-
-            // consensus
             consent;
             unconsent;
+        }
+
+        size = 1024;
+        default_action = unconsent();
+    }
+
+    // Layer 3 forwarding tables
+    table ipv4_forwarding {
+        key = {
+            hdr.ipv4.dstAddr: lpm;
+        }
+
+        actions = {
+            ipv4_forward;
         }
 
         size = 1024;
         default_action = drop();
     }
 
-    table udp_exact {
+    table ipv6_forwarding {
+        key = {
+            hdr.ipv6.dstAddr: lpm;
+        }
+
+        actions = {
+            ipv6_forward;
+        }
+
+        size = 1024;
+        default_action = drop();
+    }
+
+    // Layer 4 consensus tables
+    table udp_consensus {
         key = {
             hdr.udp.srcPort : exact;
             hdr.udp.dstPort : exact;
@@ -299,7 +323,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         default_action = unconsent();
     }
 
-    table tcp_exact {
+    table tcp_consensus {
         key = {
             hdr.tcp.srcPort : exact;
             hdr.tcp.dstPort : exact;
@@ -318,13 +342,18 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         // Add the consensus header if it doesn't exists
         if(!hdr.consensus.isValid()) consensus_ingress();
 
-        if(hdr.ethernet.isValid()) ethernet_table.apply();
+        // Consensus tables
+        if(hdr.ethernet.isValid()) ethernet_consensus.apply();
 
-        if(hdr.tcp.isValid()) tcp_exact.apply();
-        else if(hdr.udp.isValid()) udp_exact.apply();
+        if(hdr.ipv4.isValid()) ipv4_consensus.apply();
+        else if(hdr.ipv6.isValid()) ipv6_consensus.apply();
 
-        if(hdr.ipv4.isValid()) ipv4_lpm.apply();
-        else if(hdr.ipv6.isValid()) ipv6_lpm.apply();
+        if(hdr.tcp.isValid()) tcp_consensus.apply();
+        else if(hdr.udp.isValid()) udp_consensus.apply();
+
+        // Packet forwarding
+        if(hdr.ipv4.isValid()) ipv4_forwarding.apply();
+        else if(hdr.ipv6.isValid()) ipv6_forwarding.apply();
     }
 }
 
