@@ -246,7 +246,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     // Layer 3 consensus tables
@@ -262,7 +262,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     table ipv6_consensus {
@@ -277,7 +277,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     // Layer 3 forwarding tables
@@ -320,7 +320,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     table tcp_consensus {
@@ -335,7 +335,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     apply {
