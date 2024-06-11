@@ -80,8 +80,7 @@ header udp_t {
 
 // Metadata
 struct metadata {
-    bit<1> drop_packet;
-    bit<1> remove_consensus;
+    bit<8> consensus;
 }
 
 // Headers
@@ -210,11 +209,8 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     }
 
     action ipv4_lastHop(bit<9> port){
-        // Checking wheter to forward the packet
-        if(hdr.consensus.allow <= hdr.consensus.unallow) {
-            meta.drop_packet = 1; // Set flag in metadata to drop the packet
-            return ;
-        }
+        // If meta.consensus is not positive, the packet must be dropped
+        meta.consensus = hdr.consensus.allow - hdr.consensus.unallow;
 
         // Removing consensus header and forwarding packet
         hdr.ipv4.protocol = hdr.consensus.protocol;
@@ -224,11 +220,8 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     }
 
     action ipv6_lastHop(bit<9> port){
-        // Checking wheter to forward the packet
-        if(hdr.consensus.allow <= hdr.consensus.unallow) {
-            meta.drop_packet = 1; // Set flag in metadata to drop the packet
-            return ;
-        }
+        // If meta.consensus is not positive, the packet must be dropped
+        meta.consensus = hdr.consensus.allow - hdr.consensus.unallow;
 
         // Removing consensus header and forwarding packet
         hdr.ipv6.nextHeader = hdr.consensus.protocol;
@@ -245,7 +238,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
         actions = {
             ipv4_forward;
-            ipv4_lastHop
+            ipv4_lastHop;
             drop;
         }
 
@@ -260,7 +253,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
         actions = {
             ipv6_forward;
-            ipv6_lastHop
+            ipv6_lastHop;
             drop;
         }
 
@@ -291,7 +284,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     table ipv4_consensus {
         key = {
             hdr.ipv4.srcAddr: lpm;
-            hdr.ipv4.dstAddr: lpm;
         }
 
         actions = {
@@ -306,7 +298,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     table ipv6_consensus {
         key = {
             hdr.ipv6.srcAddr: lpm;
-            hdr.ipv6.dstAddr: lpm;
         }
 
         actions = {
@@ -376,11 +367,9 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     apply {
-        if(meta.drop_packet == 1){
+        if(meta.consensus < 1){
             // Drop packet
             mark_to_drop(standard_metadata);
-        } else if(meta.remove_consensus == 1){
-            hdr.consensus.setInvalid();
         }
     }
 }
@@ -415,33 +404,13 @@ control MyComputeChecksum(inout headers  hdr, inout metadata meta) {
 
 control MyDeparser(packet_out packet, in headers hdr) {
     apply {
+        // Should automatically skip any non-valid headers
         packet.emit(hdr.ethernet);
-
-        call L3Deparser(packet, hdr);
-
-        call L3_5Deparser(packet, hdr);
-
-        call L4Deparser(packet, hdr);
-    }
-}
-
-control L3Deparser(packet_out packet, in headers hdr){
-    apply {
-        if(hdr.ipv4.isValid()) packet.emit(hdr.ipv4);
-        else if(hdr.ipv6.isValid()) packet.emit(hdr.ipv6);
-    }
-}
-
-control L3_5Deparser(packet_out packet, in headers hdr){
-    apply {
-        if(hdr.consensus.isValid()) packet.emit(hdr.consensus);
-    }
-}
-
-control L4Deparser(packet_out packet, in headers hdr){
-    apply {
-        if(hdr.tcp.isValid()) packet.emit(hdr.tcp);
-        else if(hdr.udp.isValid()) packet.emit(hdr.udp);
+        packet.emit(hdr.ipv4);
+        packet.emit(hdr.ipv6);
+        packet.emit(hdr.consensus);
+        packet.emit(hdr.tcp);
+        packet.emit(hdr.udp);
     }
 }
 
