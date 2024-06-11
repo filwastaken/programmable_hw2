@@ -230,13 +230,40 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         standard_metadata.egress_spec = port;
     }
 
-    // Tables definitions
+    // Layer 3 forwarding tables
+    table ipv4_forwarding {
+        key = {
+            hdr.ipv4.dstAddr: lpm;
+        }
+
+        actions = {
+            ipv4_forward;
+        }
+
+        size = 1024;
+        default_action = drop();
+    }
+
+    table ipv6_forwarding {
+        key = {
+            hdr.ipv6.dstAddr: lpm;
+        }
+
+        actions = {
+            ipv6_forward;
+        }
+
+        size = 1024;
+        default_action = drop();
+    }
+
+    //******************** Consensus tables definitions ***************************//
 
     // Layer 2 consensus table
     table ethernet_consensus {
         key = {
-            hdr.ethernet.srcAddr : lpm;
-            hdr.ethernet.dstAddr : lpm;
+            hdr.ethernet.srcAddr : exact;
+            hdr.ethernet.dstAddr : exact;
             hdr.ethernet.etherType : exact;
         }
 
@@ -278,33 +305,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
         size = 1024;
         default_action = unconsent();
-    }
-
-    // Layer 3 forwarding tables
-    table ipv4_forwarding {
-        key = {
-            hdr.ipv4.dstAddr: lpm;
-        }
-
-        actions = {
-            ipv4_forward;
-        }
-
-        size = 1024;
-        default_action = drop();
-    }
-
-    table ipv6_forwarding {
-        key = {
-            hdr.ipv6.dstAddr: lpm;
-        }
-
-        actions = {
-            ipv6_forward;
-        }
-
-        size = 1024;
-        default_action = drop();
     }
 
     // Layer 4 consensus tables
