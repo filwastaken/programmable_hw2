@@ -1,19 +1,14 @@
-table_add MyIngress.ethernet_consensus consent 00:00:00:00:10:00/36 00:00:00:00:20:00/36 0x0800 =>
-table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00/36 00:00:00:00:20:00/36 0x86DD =>
-
-table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00/36 00:00:00:00:30:00/36 0x0800 =>
-table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00/36 00:00:00:00:30:00/36 0x86DD =>
-
-table_add MyIngress.ethernet_consensus consent 00:00:00:00:20:00/36 00:00:00:00:40:00/36 0x0800 =>
-table_add MyIngress.ethernet_consensus consent 00:00:00:00:20:00/36 00:00:00:00:40:00/36 0x86DD =>
-
-
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.1/24 => 0 1
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.2/24 => 1 1
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.3/24 => 3 0
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.4/24 => 2 0
-
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::1 => 0 1
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::2 => 1 1
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::3 => 3 0
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::4 => 2 0
+table_add MyIngress.ethernet_consensus consent 00:00:00:00:10:00 00:00:00:00:20:00 0x0800 =>
+table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00 00:00:00:00:20:00 0x86DD =>
+table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00 00:00:00:00:30:00 0x0800 =>
+table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00 00:00:00:00:30:00 0x86DD =>
+table_add MyIngress.ethernet_consensus consent 00:00:00:00:20:00 00:00:00:00:40:00 0x0800 =>
+table_add MyIngress.ethernet_consensus consent 00:00:00:00:20:00 00:00:00:00:40:00 0x86DD =>
+table_add MyIngress.ipv4_forwarding ipv4_lastHop 10.0.0.1/32 => 0
+table_add MyIngress.ipv4_forwarding ipv4_lastHop 10.0.0.2/32 => 1
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.3/32 => 3
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.4/32 => 2
+table_add MyIngress.ipv6_forwarding ipv6_lastHop 2001:db8:1234::1/128 => 0
+table_add MyIngress.ipv6_forwarding ipv6_lastHop 2001:db8:1234::2/128 => 1
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::3/128 => 3
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::4/128 => 2

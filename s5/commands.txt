@@ -1,32 +1,26 @@
 table_add MyIngress.udp_consensus consent 80 65535 =>
 table_add MyIngress.udp_consensus consent 21 65535 =>
 table_add MyIngress.udp_consensus consent 22 65535 =>
-
 table_add MyIngress.udp_consensus unconsent 65535 21 =>
 table_add MyIngress.udp_consensus unconsent 65535 22 =>
 table_add MyIngress.udp_consensus unconsent 65535 25 =>
 table_add MyIngress.udp_consensus unconsent 65535 69 =>
 table_add MyIngress.udp_consensus unconsent 65535 79 =>
 table_add MyIngress.udp_consensus unconsent 65535 445 =>
-
 table_add MyIngress.tcp_consensus consent 80 65535 =>
 table_add MyIngress.tcp_consensus consent 21 65535 =>
 table_add MyIngress.tcp_consensus consent 22 65535 =>
-
 table_add MyIngress.tcp_consensus unconsent 65535 21 =>
 table_add MyIngress.tcp_consensus unconsent 65535 22 =>
 table_add MyIngress.tcp_consensus unconsent 65535 25 =>
 table_add MyIngress.tcp_consensus unconsent 65535 69 =>
 table_add MyIngress.tcp_consensus unconsent 65535 79 =>
 table_add MyIngress.tcp_consensus unconsent 65535 445 =>
- 
-
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.1/24 => 1 0
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.2/24 => 1 0
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.3/24 => 0 0
-table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.4/24 => 2 0
-
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::1 => 1 0
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::2 => 1 0
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::3 => 0 0
-table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::4 => 2 0
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.1/32 => 1
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.2/32 => 1
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.3/32 => 0
+table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.4/32 => 2
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::1/128 => 1
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::2/128 => 1
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::3/128 => 0
+table_add MyIngress.ipv6_forwarding ipv6_forward 2001:db8:1234::4/128 => 2
