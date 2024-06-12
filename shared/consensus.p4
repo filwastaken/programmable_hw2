@@ -312,7 +312,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     // Layer 4 consensus tables
     table udp_consensus {
         key = {
-            hdr.udp.srcPort : exact;
             hdr.udp.dstPort : exact;
         }
 
@@ -327,7 +326,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     table tcp_consensus {
         key = {
-            hdr.tcp.srcPort : exact;
             hdr.tcp.dstPort : exact;
         }
 

@@ -99,9 +99,7 @@ The possible actions of any consensus table for any switch are:
 In particular, we have defined when the switches will cast a positive or negative vote in each switch's table. When none apply, the default action unconsent will represent an abstained.
 
 # Switches definitions
-Since all the switches require the forwarding functionality, we have defined static routes in the commands.txt to allow every packet to its destination. However, since the switches only
-check one layer to cast their vote, we have not defined any table rules for the layers that shouldn't be looked at by a particular switch. Moreover, we have set the function unconsent() as the
-default for all the consensus tables, since there isn't any difference between not voting and voting negativly.
+Since all the switches require the forwarding functionality, we have defined static routes in the commands.txt to allow every packet to its destination. However, since the switches only check one layer to cast their vote, we have not defined any table rules for the layers that shouldn't be looked at by a particular switch. Moreover, we have set the function unconsent() as the default for all the consensus tables, since there isn't any difference between not voting and voting negativly.
 
 Here follows an high level explanation of every tables and actions defined for each switch, defined in each switch's comamnds.txt:
 ## S1 rules
@@ -159,30 +157,18 @@ The forwarding rules are:
 ## S4 rules
 ### S4 consensus
 The switch will consent:
-1. Any UDP message with source port 22
-2. Any UDP message with source port 80
-3. Any UDP message with source port 445
-4. Any UDP message with destination port 22
-5. Any UDP message with destination port 25
-6. Any UDP message with destination port 445
-7. Any TCP message with source port 80
-8. Any TCP message with source port 445
-9. Any TCP message with destination port 22
-10. Any TCP message with destination port 445
+1. Any UDP or TCP message with destination port 21
+2. Any UDP or TCP message with destination port 22
+3. Any UDP or TCP message with destination port 25
+4. Any TCP message with destination port 80
+5. Any UDP or TCP message with destination port 443
+6. Any TCP message with destination port 445
 
 The switch will not consent:
-1. Any UDP message with source port 21
-2. Any UDP message with source port 25
-3. Any UDP message with destination port 21
-4. Any UDP message with destination port 69
-5. Any UDP message with destination port 79
-6. Any TCP message with source port 21
-7. Any TCP message with source port 22
-8. Any TCP message with source port 25
-9. Any TCP message with destination port 21
-10. Any TCP message with destination port 25
-11. Any TCP message with destination port 69
-12. Any TCP message with destination port 79
+1. Any UDP or TCP message with destination port 69
+2. Any UDP or TCP message with destination port 79
+3. Any UDP message with destination port 80
+4. Any UDP message with destination port 445
 
 ### S4 routing
 The forwarding rules are:
@@ -194,17 +180,18 @@ The forwarding rules are:
 ## S5 rules
 ### S5 consensus
 The switch will consent:
-1. Any UDP or TCP message with source port 21
-2. Any UDP or TCP message with source port 22
-3. Any UDP or TCP message with source port 80
+1. Any UDP or TCP message with destination port 22
+2. Any TCP message with destination port 22
+3. Any UDP or TCP message with destination port 25
 
 The switch will not consent:
 1. Any UDP or TCP message with destination port 21
-2. Any UDP or TCP message with destination port 22
-3. Any UDP or TCP message with destination port 25
-4. Any UDP or TCP message with destination port 69
-5. Any UDP or TCP message with destination port 79
-6. Any UDP or TCP message with destination port 445
+2. Any UDP with destination port 22
+3. Any UDP or TCP message with destination port 69
+4. Any UDP or TCP message with destination port 79
+5. Any UDP or TCP message with destination port 80
+6. Any UDP or TCP message with destination port 443
+7. Any UDP or TCP message with destination port 445
 
 ### S5 routing
 The forwarding rules are:
