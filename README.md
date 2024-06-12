@@ -114,10 +114,10 @@ The switch will not consent
 
 ### S1 routing
 The forwarding rules are:
-- Any packet towards 10.0.0.1 or 2001:db8:1234::1 needs to be forwarded through eth0 and will trigger ipvX_lastHop
-- Any packet towards 10.0.0.2 or 2001:db8:1234::2 needs to be forwarded through eth1 and will trigger ipvX_lastHop
-- Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth3 and will trigger ipvX_forward
-- Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth2 and will trigger ipvX_forward
+- Any packet towards 10.0.0.1 or 2001:db8:1234::1 will be forwarded through eth0 and will trigger ipvX_lastHop
+- Any packet towards 10.0.0.2 or 2001:db8:1234::2 will be forwarded through eth1 and will trigger ipvX_lastHop
+- Any packet towards 10.0.0.3 or 2001:db8:1234::3 will be forwarded through eth3 and will trigger ipvX_forward
+- Any packet towards 10.0.0.4 or 2001:db8:1234::4 will be forwarded through eth2 and will trigger ipvX_forward
 
 ## S2 rules
 ### S2 consensus
@@ -131,10 +131,10 @@ The switch will not consent:
 
 ### S2 routing
 The forwarding rules are:
-- Any packet towards 10.0.0.1 or 2001:db8:1234::1 needs to be forwarded through eth0 and will trigger ipvX_forward
-- Any packet towards 10.0.0.2 or 2001:db8:1234::2 needs to be forwarded through eth0 and will trigger ipvX_forward
-- Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth2 and will trigger ipvX_forward
-- Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth2 and will trigger ipvX_forward
+- Any packet towards 10.0.0.1 or 2001:db8:1234::1 will be forwarded through eth0 and will trigger ipvX_forward
+- Any packet towards 10.0.0.2 or 2001:db8:1234::2 will be forwarded through eth0 and will trigger ipvX_forward
+- Any packet towards 10.0.0.3 or 2001:db8:1234::3 will be forwarded through eth2 and will trigger ipvX_forward
+- Any packet towards 10.0.0.4 or 2001:db8:1234::4 will be forwarded through eth2 and will trigger ipvX_forward
 
 ## S3 rules
 ### S3 consensus
@@ -149,10 +149,10 @@ The switch will not consent:
 
 ### S3 routing
 The forwarding rules are:
-- Any packet towards 10.0.0.1 or 2001:db8:1234::1 needs to be forwarded through eth0 and will trigger ipvX_forward
-- Any packet towards 10.0.0.2 or 2001:db8:1234::2 needs to be forwarded through eth0 and will trigger ipvX_forward
-- Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth2 and will trigger ipvX_forward
-- Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth1 and will trigger ipvX_forward
+- Any packet towards 10.0.0.1 or 2001:db8:1234::1 will be forwarded through eth0 and will trigger ipvX_forward
+- Any packet towards 10.0.0.2 or 2001:db8:1234::2 will be forwarded through eth0 and will trigger ipvX_forward
+- Any packet towards 10.0.0.3 or 2001:db8:1234::3 will be forwarded through eth2 and will trigger ipvX_forward
+- Any packet towards 10.0.0.4 or 2001:db8:1234::4 will be forwarded through eth1 and will trigger ipvX_forward
 
 ## S4 rules
 ### S4 consensus
@@ -172,10 +172,10 @@ The switch will not consent:
 
 ### S4 routing
 The forwarding rules are:
-- Any packet towards 10.0.0.1 or 2001:db8:1234::1 needs to be forwarded through eth1 and will trigger ipvX_forward
-- Any packet towards 10.0.0.2 or 2001:db8:1234::2 needs to be forwarded through eth1 and will trigger ipvX_forward
-- Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth0 and will trigger ipvX_lastHop
-- Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth3 and will trigger ipvX_forward
+- Any packet towards 10.0.0.1 or 2001:db8:1234::1 will be forwarded through eth1 and will trigger ipvX_forward
+- Any packet towards 10.0.0.2 or 2001:db8:1234::2 will be forwarded through eth1 and will trigger ipvX_forward
+- Any packet towards 10.0.0.3 or 2001:db8:1234::3 will be forwarded through eth0 and will trigger ipvX_lastHop
+- Any packet towards 10.0.0.4 or 2001:db8:1234::4 will be forwarded through eth3 and will trigger ipvX_forward
 
 ## S5 rules
 ### S5 consensus
@@ -195,10 +195,10 @@ The switch will not consent:
 
 ### S5 routing
 The forwarding rules are:
-- Any packet towards 10.0.0.1 or 2001:db8:1234::1 needs to be forwarded through eth1 and will trigger ipvX_forward
-- Any packet towards 10.0.0.2 or 2001:db8:1234::2 needs to be forwarded through eth1 and will trigger ipvX_forward
-- Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth0 and will trigger ipvX_forward
-- Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth2 and will trigger ipvX_forward
+- Any packet towards 10.0.0.1 or 2001:db8:1234::1 will be forwarded through eth1 and will trigger ipvX_forward
+- Any packet towards 10.0.0.2 or 2001:db8:1234::2 will be forwarded through eth1 and will trigger ipvX_forward
+- Any packet towards 10.0.0.3 or 2001:db8:1234::3 will be forwarded through eth0 and will trigger ipvX_forward
+- Any packet towards 10.0.0.4 or 2001:db8:1234::4 will be forwarded through eth2 and will trigger ipvX_forward
 
 ## S6 rules
 ### S6 consensus
@@ -213,11 +213,11 @@ The switch will not consent
 
 ### S6 routing
 The forwarding rules are:
-- Any packet towards 10.0.0.1 needs to be forwarded through eth1 and will trigger ipvX_forward
-- Any packet towards 2001:db8:1234::1 needs to be forwarded through eth0 and will trigger ipvX_forward
-- Any packet towards 10.0.0.2 or 2001:db8:1234::2 needs to be forwarded through eth1 and will trigger ipvX_forward
-- Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth0 and will trigger ipvX_forward
-- Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth2 and will trigger ipvX_lastHop
+- Any packet towards 10.0.0.1 will be forwarded through eth1 and will trigger ipvX_forward
+- Any packet towards 2001:db8:1234::1 will be forwarded through eth0 and will trigger ipvX_forward
+- Any packet towards 10.0.0.2 or 2001:db8:1234::2 will be forwarded through eth1 and will trigger ipvX_forward
+- Any packet towards 10.0.0.3 or 2001:db8:1234::3 will be forwarded through eth0 and will trigger ipvX_forward
+- Any packet towards 10.0.0.4 or 2001:db8:1234::4 will be forwarded through eth2 and will trigger ipvX_lastHop
 
 
 Each switch configuration can be found at:
