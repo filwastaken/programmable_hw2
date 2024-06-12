@@ -35,7 +35,7 @@ apply {
   ...
 }
 ```
-Here is the link to the [consensus_ingress action](https://github.com/filwastaken/programmable_hw2/blob/9797e2387ffff7d6a58fd17dd72761d40da804bd/shared/consensus.p4?plain=1#L188).
+Here is the link to the [consensus_ingress action](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L188).
 
 ## IP forwarding
 We have also implemented forwarding functions for IPv4 and IPv6. In case the switch processing the packet is the last one before the destination, the consensus header needs to be evaluted and removed before forwarding. In particular, we have defined four functions:
@@ -64,10 +64,10 @@ action ipv4_lastHop(bit<9> port){
 ```
 
 This is the IPv4 code snippet, the full forwardings can be found at:
-- [IPv4 forwarding](https://github.com/filwastaken/programmable_hw2/blob/9797e2387ffff7d6a58fd17dd72761d40da804bd/shared/consensus.p4?plain=1#L201)
-- [IPv4 last Hop]()
-- [IPv6 forwarding](https://github.com/filwastaken/programmable_hw2/blob/9797e2387ffff7d6a58fd17dd72761d40da804bd/shared/consensus.p4?plain=1#L217)
-- [IPv6 last Hop]()
+- [IPv4 forwarding](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L201)
+- [IPv4 last Hop](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L211)
+- [IPv6 forwarding](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L206)
+- [IPv6 last Hop](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L222)
 
 Since conditional processing is not allowed in the ingress actions, we have created a new metadata field that is set to be the difference between the number of switches which have allowed the packet and those which didn't. This value is then evaluted in the egress function in the following manner:
 
@@ -156,7 +156,6 @@ The forwarding rules are:
 - Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth2 and will trigger ipvX_forward
 - Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth1 and will trigger ipvX_forward
 
-
 ## S4 rules
 ### S4 consensus
 The switch will consent:
@@ -233,7 +232,11 @@ The forwarding rules are:
 - Any packet towards 10.0.0.3 or 2001:db8:1234::3 needs to be forwarded through eth0 and will trigger ipvX_forward
 - Any packet towards 10.0.0.4 or 2001:db8:1234::4 needs to be forwarded through eth2 and will trigger ipvX_lastHop
 
-# TODO:
-1. Change permanent links to the updated p4 files to sync the new changes!
-2. Add a python program to test the consensus
 
+Each switch configuration can be found at:
+1. [s1 commands.txt](/s1/commands.txt)
+2. [s2 commands.txt](/s2/commands.txt)
+3. [s3 commands.txt](/s3/commands.txt)
+4. [s4 commands.txt](/s4/commands.txt)
+5. [s5 commands.txt](/s5/commands.txt)
+6. [s6 commands.txt](/s6/commands.txt)
