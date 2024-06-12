@@ -199,8 +199,8 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     //******************** IP based forwarding ***************************//
     action ipv4_forward(bit<9> port) {
-        standard_metadata.egress_spec = port;
         hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
+        standard_metadata.egress_spec = port;
     }
 
     action ipv6_forward(bit<9> port){
@@ -283,7 +283,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     // Layer 3 consensus tables
     table ipv4_consensus {
         key = {
-            hdr.ipv4.srcAddr: lpm;
+            hdr.ipv4.srcAddr: exact;
         }
 
         actions = {
@@ -297,7 +297,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     table ipv6_consensus {
         key = {
-            hdr.ipv6.srcAddr: lpm;
+            hdr.ipv6.srcAddr: exact;
         }
 
         actions = {
@@ -367,7 +367,7 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     apply {
-        if(meta.consensus < 1){
+        if(meta.consensus < 1 && !hdr.consensus.isValid()){
             // Drop packet
             mark_to_drop(standard_metadata);
         }
