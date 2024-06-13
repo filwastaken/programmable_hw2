@@ -143,7 +143,11 @@ parser MyParser(packet_in packet,
 
     state parse_consensus {
         packet.extract(hdr.consensus);
-        transition accept;
+        transition select(hdr.consensus.protocol){
+            TYPE_TCP : parse_tcp;
+            TYPE_UDP : parse_udp;
+            default: accept;
+        }
     }
 
     state parse_tcp {
@@ -339,7 +343,6 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     }
 
     apply {
-        // Add the consensus header if it doesn't exists
         if(!hdr.consensus.isValid()) consensus_ingress();
 
         // Consensus tables
