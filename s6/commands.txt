@@ -1,9 +1,9 @@
-table_add MyIngress.ethernet_consensus consent 00:00:00:00:10:00 00:00:00:00:20:00 0x0800 =>
-table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00 00:00:00:00:20:00 0x86DD =>
-table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00 00:00:00:00:30:00 0x0800 =>
-table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:10:00 00:00:00:00:30:00 0x86DD =>
-table_add MyIngress.ethernet_consensus consent 00:00:00:00:20:00 00:00:00:00:40:00 0x0800 =>
-table_add MyIngress.ethernet_consensus consent 00:00:00:00:20:00 00:00:00:00:40:00 0x86DD =>
+table_add MyIngress.ethernet_consensus consent 00:00:00:00:11:00 00:00:00:00:22:00 0x0800 =>
+table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:11:00 00:00:00:00:22:00 0x86DD =>
+table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:11:00 00:00:00:00:33:00 0x0800 =>
+table_add MyIngress.ethernet_consensus unconsent 00:00:00:00:11:00 00:00:00:00:33:00 0x86DD =>
+table_add MyIngress.ethernet_consensus consent 00:00:00:00:22:00 00:00:00:00:44:00 0x0800 =>
+table_add MyIngress.ethernet_consensus consent 00:00:00:00:22:00 00:00:00:00:44:00 0x86DD =>
 table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.1/32 => 2
 table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.2/32 => 2
 table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.3/32 => 1

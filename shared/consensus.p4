@@ -53,7 +53,6 @@ header ipv6_t {
 // I don't need to add an 'abstained' option. I only need to check wheter the 'allowed' votes are the majority (I can group 'unallowed' and 'abstained')
 header consensus_t {
     bit<8> allow;
-    bit<8> unallow;
     bit<8> protocol;
 }
 
@@ -186,19 +185,19 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
     }
 
     action unconsent(){
-        hdr.consensus.unallow = hdr.consensus.unallow + 1;
+        hdr.consensus.allow = hdr.consensus.allow - 1;
     }
 
-    action consensus_ingress(){
+    action ipv4_ingress(){
         hdr.consensus.setValid();
+        hdr.consensus.protocol = hdr.ipv4.protocol;
+        hdr.ipv4.protocol = TYPE_CONSENSUS;
+    }
 
-        if(hdr.ipv4.isValid()){
-            hdr.consensus.protocol = hdr.ipv4.protocol;
-            hdr.ipv4.protocol = TYPE_CONSENSUS;
-        } else if(hdr.ipv6.isValid()) {
-            hdr.consensus.protocol = hdr.ipv6.nextHeader;
-            hdr.ipv6.nextHeader = TYPE_CONSENSUS;
-        }
+    action ipv6_ingress(){
+        hdr.consensus.setValid();
+        hdr.consensus.protocol = hdr.ipv6.nextHeader;
+        hdr.ipv6.nextHeader = TYPE_CONSENSUS;
     }
 
     //******************** IP based forwarding ***************************//
@@ -214,7 +213,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     action ipv4_lastHop(bit<9> port){
         // If meta.consensus is not positive, the packet must be dropped
-        meta.consensus = hdr.consensus.allow - hdr.consensus.unallow;
+        meta.consensus = hdr.consensus.allow;
 
         // Removing consensus header and forwarding packet
         hdr.ipv4.protocol = hdr.consensus.protocol;
@@ -225,7 +224,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     action ipv6_lastHop(bit<9> port){
         // If meta.consensus is not positive, the packet must be dropped
-        meta.consensus = hdr.consensus.allow - hdr.consensus.unallow;
+        meta.consensus = hdr.consensus.allow;
 
         // Removing consensus header and forwarding packet
         hdr.ipv6.nextHeader = hdr.consensus.protocol;
@@ -278,10 +277,11 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
+            NoAction;
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     // Layer 3 consensus tables
@@ -293,10 +293,11 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
+            NoAction;
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     table ipv6_consensus {
@@ -307,10 +308,11 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
+            NoAction;
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     // Layer 4 consensus tables
@@ -322,10 +324,11 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
+            NoAction;
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     table tcp_consensus {
@@ -336,14 +339,18 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
+            NoAction;
         }
 
         size = 1024;
-        default_action = unconsent();
+        default_action = NoAction;
     }
 
     apply {
-        if(!hdr.consensus.isValid()) consensus_ingress();
+        if(!hdr.consensus.isValid()){
+            if(hdr.ipv4.isValid()) ipv4_ingress();
+            else ipv6_ingress();
+        }
 
         // Consensus tables
         if(hdr.ethernet.isValid()) ethernet_consensus.apply();
@@ -368,7 +375,7 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     apply {
-        if(meta.consensus < 1 && !hdr.consensus.isValid()){
+        if(!hdr.consensus.isValid() && meta.consensus < 1){
             // Drop packet
             mark_to_drop(standard_metadata);
         }
@@ -421,10 +428,10 @@ control MyDeparser(packet_out packet, in headers hdr) {
 
 
 V1Switch(
-MyParser(),
-MyVerifyChecksum(),
-MyIngress(),
-MyEgress(),
-MyComputeChecksum(),
-MyDeparser()
+    MyParser(),
+    MyVerifyChecksum(),
+    MyIngress(),
+    MyEgress(),
+    MyComputeChecksum(),
+    MyDeparser()
 ) main;
