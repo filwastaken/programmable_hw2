@@ -79,7 +79,7 @@ header udp_t {
 
 // Metadata
 struct metadata {
-    bit<8> consensus;
+    bit<1> consensus;
 }
 
 // Headers
@@ -213,7 +213,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     action ipv4_lastHop(bit<9> port){
         // If meta.consensus is not positive, the packet must be dropped
-        meta.consensus = hdr.consensus.allow;
+        meta.consensus = (hdr.consensus.allow > 0) ? 1w1 : 1w0;
 
         // Removing consensus header and forwarding packet
         hdr.ipv4.protocol = hdr.consensus.protocol;
@@ -224,7 +224,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     action ipv6_lastHop(bit<9> port){
         // If meta.consensus is not positive, the packet must be dropped
-        meta.consensus = hdr.consensus.allow;
+        meta.consensus = (hdr.consensus.allow > 0) ? 1w1 : 1w0;
 
         // Removing consensus header and forwarding packet
         hdr.ipv6.nextHeader = hdr.consensus.protocol;
@@ -266,6 +266,7 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
 
     //******************** Consensus tables definitions ***************************//
 
+#ifdef L2_SWITCH
     // Layer 2 consensus table
     table ethernet_consensus {
         key = {
@@ -277,13 +278,14 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
-            NoAction;
         }
 
         size = 1024;
-        default_action = NoAction;
+        default_action = unconsent();
     }
+#endif
 
+#ifdef L3_SWITCH
     // Layer 3 consensus tables
     table ipv4_consensus {
         key = {
@@ -293,11 +295,10 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
-            NoAction;
         }
 
         size = 1024;
-        default_action = NoAction;
+        default_action = unconsent();
     }
 
     table ipv6_consensus {
@@ -308,13 +309,14 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
-            NoAction;
         }
 
         size = 1024;
-        default_action = NoAction;
+        default_action = unconsent();
     }
+#endif
 
+#ifdef L4_SWITCH
     // Layer 4 consensus tables
     table udp_consensus {
         key = {
@@ -324,11 +326,10 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
-            NoAction;
         }
 
         size = 1024;
-        default_action = NoAction;
+        default_action = unconsent();
     }
 
     table tcp_consensus {
@@ -339,27 +340,34 @@ control MyIngress(inout headers hdr, inout metadata meta, inout standard_metadat
         actions = {
             consent;
             unconsent;
-            NoAction;
         }
 
         size = 1024;
-        default_action = NoAction;
+        default_action = unconsent();
     }
+#endif
 
     apply {
+        // Add the consensus header if it doesn't exists
         if(!hdr.consensus.isValid()){
             if(hdr.ipv4.isValid()) ipv4_ingress();
             else ipv6_ingress();
         }
 
         // Consensus tables
+#ifdef L2_SWITCH
         if(hdr.ethernet.isValid()) ethernet_consensus.apply();
+#endif
 
+#ifdef L3_SWITCH
         if(hdr.ipv4.isValid()) ipv4_consensus.apply();
         else if(hdr.ipv6.isValid()) ipv6_consensus.apply();
+#endif
 
+#ifdef L4_SWITCH
         if(hdr.tcp.isValid()) tcp_consensus.apply();
         else if(hdr.udp.isValid()) udp_consensus.apply();
+#endif
 
         // Packet forwarding
         if(hdr.ipv4.isValid()) ipv4_forwarding.apply();
@@ -375,7 +383,7 @@ control MyEgress(inout headers hdr,
                  inout metadata meta,
                  inout standard_metadata_t standard_metadata) {
     apply {
-        if(!hdr.consensus.isValid() && meta.consensus < 1){
+        if(!hdr.consensus.isValid() && meta.consensus == 0){
             // Drop packet
             mark_to_drop(standard_metadata);
         }

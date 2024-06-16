@@ -1,4 +1,4 @@
-p4c /shared/consensus.p4 -o /
+p4c -D L4_SWITCH=1 /shared/consensus.p4 -o /
 simple_switch -i 1@eth0 -i 2@eth1 -i 3@eth2 consensus.json &
 
 while [[ $(pgrep simple_switch) -eq 0 ]]; do sleep 1; done
