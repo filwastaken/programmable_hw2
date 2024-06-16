@@ -5,7 +5,6 @@ table_add MyIngress.ipv4_consensus unconsent 10.0.0.4 =>
 table_add MyIngress.ipv6_consensus consent 2001:db8:1234::1 =>
 table_add MyIngress.ipv6_consensus consent 2001:db8:1234::3 =>
 table_add MyIngress.ipv6_consensus unconsent 2001:db8:1234::2 =>
-table_add MyIngress.ipv6_consensus unconsent 2001:db8:1234::4 =>
 table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.1/32 => 1
 table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.2/32 => 1
 table_add MyIngress.ipv4_forwarding ipv4_forward 10.0.0.3/32 => 3
