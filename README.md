@@ -10,42 +10,51 @@ The technology supported by this projects are:
 - UDP
 
 ## Consensus header
-To manage consensus a "3.5 layer" header is inserted (between IP and TCP/UDP). This header has a total size of 24 bits:
-```
+To manage consensus a "3.5 layer" header is inserted (between IP and TCP/UDP). This header has a total size of 16 bits:
+```p4
 header consensus_t {
     bit<8> allow;
-    bit<8> unallow;
     bit<8> protocol;
 }
 ```
-As defined by the assignment, we need the majority vote to allow the packet to the destination. This means that we can group the number of switches that don't vote and those that vote
-negativly against those that vote positivly for a particular packet.
+As defined by the assignment, we need the majority vote to allow the packet to the destination. This means that we can group the number of switches that don't vote and those that vote negativly against those that vote positivly for a particular packet.
 
-$`pos > \frac{total}{2} = 2*pos > total = 2*pos > pos + neg + abst = pos > neg + abst`$
+$`pos > \frac{total}{2} = 2*pos > total = 2*pos > pos + neg + abst = pos > neg + abst = pos - (neg + abst) > 0`$
 
 In fact, we just need to check that there are more positive votes than the sum of the negative votes and the switch that didn't vote at all.
 
+$`
+allowed = pos - (neg + abst)
+allowed > 0
+`$
+
 ### Ingress processing
 The consensus header is added once to every packet as soon as it is seen by any switch running the p4 program. The ingress processing apply adds the consensus header as soon as it sees any packet that hasn't consensus already installed.
-```
+```p4
 apply {
-  // Add the consensus header if it doesn't exists
-  if(!hdr.consensus.isValid()) consensus_ingress();
+    // Add the consensus header if it doesn't exists
+    if(!hdr.consensus.isValid()){
+        if(hdr.ipv4.isValid()) ipv4_ingress();
+        else ipv6_ingress();
+    }
 
   ...
 }
 ```
-Here is the link to the [consensus_ingress action](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L188).
+Here are the links to the two consensus ingress functions:
+* [ipv4 ingress](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L191)
+* [ipv6_ingress](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L197)
+
 
 ## IP forwarding
-We have also implemented forwarding functions for IPv4 and IPv6. In case the switch processing the packet is the last one before the destination, the consensus header needs to be evaluted and removed before forwarding. In particular, we have defined four functions:
+We have also implemented the forwarding functions for IPv4 and IPv6. In case the switch processing the packet is the last one before the destination, the consensus header needs to be evaluted and removed before forwarding. In particular, we have defined four functions:
 1. ipv4_forwarding
 2. ipv6_forwarding
 3. ipv4_lastHop
 4. ipv6_lastHop
 
 Where the first two recreate the simple IP forwarding and the last two evalute the consensus header and remove it before forwarding the packet:
-```
+```p4
 action ipv4_forward(bit<9> port) {
     hdr.ipv4.ttl = hdr.ipv4.ttl - 1;
     standard_metadata.egress_spec = port;
@@ -53,7 +62,7 @@ action ipv4_forward(bit<9> port) {
 
 action ipv4_lastHop(bit<9> port){
     // If meta.consensus is not positive, the packet must be dropped
-    meta.consensus = hdr.consensus.allow - hdr.consensus.unallow;
+    meta.consensus = (hdr.consensus.allow > 0) ? 1w1 : 1w0;
 
     // Removing consensus header and forwarding packet
     hdr.ipv4.protocol = hdr.consensus.protocol;
@@ -64,31 +73,31 @@ action ipv4_lastHop(bit<9> port){
 ```
 
 This is the IPv4 code snippet, the full forwardings can be found at:
-- [IPv4 forwarding](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L201)
-- [IPv4 last Hop](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L211)
-- [IPv6 forwarding](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L206)
-- [IPv6 last Hop](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L222)
+- [IPv4 forwarding](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L204)
+- [IPv4 last Hop](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L214)
+- [IPv6 forwarding](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L209)
+- [IPv6 last Hop](https://github.com/filwastaken/programmable_hw2/blob/main/shared/consensus.p4?plain=1#L225)
 
-Since conditional processing is not allowed in the ingress actions, we have created a new metadata field that is set to be the difference between the number of switches which have allowed the packet and those which didn't. This value is then evaluted in the egress function in the following manner:
+Since conditional processing is not allowed in the ingress actions, we have created a new metadata field that is set to be 1 if there are more switches that allowed the packet than those which didn't, 0 otherwise. This value is then used in the egress function to drop the packet in the following manner:
 
 ### Metadata definition
-```
+```p4
 struct metadata {
-    bit<8> consensus;
+    bit<1> consensus;
 }
 ```
 
 ### Egress processing
-```
+```p4
 apply {
-    if(!hdr.consensus.isValid() && meta.consensus < 1 ){
+    if(!hdr.consensus.isValid() && meta.consensus == 0){
         // Drop packet
         mark_to_drop(standard_metadata);
     }
 }
 ```
 
-As long as the consensus header has been set invalid from the lastHop function and the stored difference is non-positive, the packet must be dropped.
+As long as the consensus header has been set invalid from the lastHop function and the metadata field is 0, the packet will be dropped.
 
 ## Consensus actions
 
