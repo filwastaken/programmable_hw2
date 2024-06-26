@@ -391,8 +391,7 @@ Each switch configuration can be found at:
 6. [s6 commands.txt](/s6/commands.txt)
 
 ## Examples
-An example of an allowed packet can be found in [/shared/positive](/shared/positive)
-An example of a dropped packet can be found in [/shared/negative](/shared/negative)
+An example of an allowed packet can be found in [/shared/positive](/shared/positive), an example of a dropped packet can be found in [/shared/negative](/shared/negative).
 
 * The positive packet derives from a message between a TCP connection from h2 to h4 on port 25
 * The negative packet derives from a message between a UDP connection from h2 to h4 on port 21
