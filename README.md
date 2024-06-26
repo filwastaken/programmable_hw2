@@ -396,3 +396,9 @@ An example of a dropped packet can be found in [/shared/negative](/shared/negati
 
 * The positive packet derives from a message between a TCP connection from h2 to h4 on port 25
 * The negative packet derives from a message between a UDP connection from h2 to h4 on port 21
+
+In particular with the following commands:
+| Positive example |   |   |  Negative example |  |
+| :---:   | :---: | :---:  | :---:  | :---: |
+| H2 | H4 | | H2 | H4 |
+| nc 10.0.0.4 25 | nc -lnvp 25 | | nc -u 10.0.0.4 21 | nc -lnvp 21 |
